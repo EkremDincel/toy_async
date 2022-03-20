@@ -22,9 +22,7 @@ class AbstractWaker(abc.ABC):
 	def is_empty(self):
 		pass
 
-#result = namedtuple("Result", ("waker", "context"))
-
-class result():
+class Result():
 
 	def __init__(self, waker, context):
 		self.waker = waker
@@ -32,6 +30,8 @@ class result():
 
 	def __await__(self):
 		return (yield self)
+
+result = Result
 
 def context_with_waker(waker):
 	def inner(context):

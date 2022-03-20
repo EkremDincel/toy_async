@@ -8,7 +8,6 @@ class WakerCondition(AbstractWaker):
 	def __call__(self, ready):
 		for condition in self.waiting:
 			if condition():
-				print("ready")
 				ready((self.waiting.pop(condition), None))
 
 	def sched(self, function, context, ready):

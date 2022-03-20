@@ -16,6 +16,21 @@ class Scheduler():
 		self.ready.append((function, None))
 
 	def run(self):
+		def step_coroutine(function, value):
+			try:
+				result = function.send(value)
+			except StopIteration as e:
+				#function.value = e.value
+				pass
+			else:
+				if result is None: # just suspend
+					self.ready.append((function, None))
+				elif result.waker is None: # this is not a checkpoint
+					self.ready.append((result.context, None))
+					step_coroutine(function, None) # continue immediately
+				else: # a checkpoint
+					self.sched(function, result.waker, result.context)
+
 		while True:
 			lenght = len(self.ready)
 			if lenght == 0:
@@ -30,16 +45,7 @@ class Scheduler():
 
 			for _ in range(lenght):
 				function, value = self.ready.popleft()
-				try:
-					result = function.send(value)
-				except StopIteration as e:
-					#function.value = e.value
-					pass
-				else:
-					if result is None:
-						self.ready.append((function, None))
-					else:
-						self.sched(function, result.waker, result.context)
+				step_coroutine(function, value)
 
 			for waker in self.wakers.values():
 				waker(self.ready.append)

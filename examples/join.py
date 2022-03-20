@@ -16,7 +16,6 @@ async def goodbye():
 
 async def main():
 	values = await join(hi(), goodbye())
-	print(values)
 	print("The End")
 
 s = Scheduler()

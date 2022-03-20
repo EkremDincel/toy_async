@@ -17,6 +17,7 @@ class WaitFor():
         self.coroutine = coroutine
 
     def __await__(self):
+        # just use a Task wrapper, duh! 
         while inspect.getcoroutinestate(self.coroutine) != inspect.CORO_CLOSED:
             yield
         return

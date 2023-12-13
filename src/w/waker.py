@@ -1,4 +1,5 @@
 import abc
+from collections import namedtuple
 
 class AbstractWaker(abc.ABC):
 	@abc.abstractmethod
@@ -19,12 +20,4 @@ class AbstractWaker(abc.ABC):
 
 	@abc.abstractmethod
 	def is_empty(self):
-		pass
-
-	@abc.abstractmethod
-	def sleep(self):
-		pass
-
-	@abc.abstractmethod
-	def close(self):
 		pass

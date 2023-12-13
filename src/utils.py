@@ -1,29 +1,9 @@
-from .wakers.waker import result
-import inspect
+from .commands import get_scheduler
 
-# can we replace this with a trivial waker?
-class Awaitable:
-    def __await__(self):
-        return (yield)
+async def run(coroutine):
+	s = await get_scheduler
+	return s.create_task(coroutine)
 
-switch = Awaitable
-
-def run(coroutine):
-    return result(None, coroutine)
-
-class WaitFor():
-
-    def __init__(self, coroutine):
-        self.coroutine = coroutine
-
-    def __await__(self):
-        # just use a Task wrapper, duh! 
-        while inspect.getcoroutinestate(self.coroutine) != inspect.CORO_CLOSED:
-            yield
-        return
-
-async def join(*coroutines):
-    for i in coroutines:
-        await run(i)
-    for i in coroutines:
-        await WaitFor(i)
+async def run_all(coroutines):
+	s = await get_scheduler
+	return s.create_tasks(coroutines)

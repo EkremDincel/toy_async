@@ -1,32 +1,43 @@
-from .waker import AbstractWaker, result
-import inspect
+from ..utils import run_all
+from ..commands import put_to_sleep
+from .waker import AbstractWaker
+
+__all__ = ["join"]
+
+def join(tasks):
+	return put_to_sleep(WakerJoin, tasks)
 
 class WakerJoin(AbstractWaker):
-
-	def __init__(self):
+	def __init__(self, awaken):
+		self.awaken = awaken
 		self.joined = {}
 
-	def __call__(self, ready):
-		ready_functions = []
+	def __call__(self):
+		tasks_to_awake = []
 
-		for joined_on in self.joined:
-			if all(inspect.getcoroutinestate(c) == inspect.CORO_CLOSED for c in joined_on):
-				ready_functions.append(joined_on)
+		for task, joined_on in self.joined.items():
+			if all(t.finished for t in joined_on):
+				self.awaken((task, (i.result for i in joined_on)))
+				tasks_to_awake.append(task)
 
-		for i in ready_functions:
-			# how to return the value instead of `None`?
-			ready((self.joined.pop(i), None))
-
-	def sched(self, function, context, ready):
-		self.joined[context] = function
-		for joined_on in context:
-			ready((joined_on, None))
+		for t in tasks_to_awake:
+			self.joined.pop(t)
+		
+	def schedule(self, task, context):
+		self.joined[task] = context
 
 	def max_sleep(self):
-		return 0
+		# hata burada
+		return float("inf")
 
 	def is_empty(self):
 		return not self.joined
 
-def join(*coroutines):
-	return result(WakerJoin, coroutines)
+	def sleep(self, time):
+		pass
+
+	def close(self):
+		pass
+
+	def __repr__(self):
+		return repr(self.sleeping)

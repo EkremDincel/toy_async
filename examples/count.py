@@ -1,6 +1,4 @@
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from src import *
+from toy_async import *
 
 async def display(x):
 	for i in range(x-5, x):
@@ -8,6 +6,6 @@ async def display(x):
 		print(i)
 
 s = Scheduler()
-s.call_soon(display(5))
-s.call_soon(display(10))
-s.run()
+s.create_task(display(5))
+s.create_task(display(10))
+s.run_until_completion()

@@ -1,22 +1,19 @@
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from src import *
+from toy_async import *
 
 async def hi():
 	print("Hello")
-	await sleep(1)
-	print("What is your name?")
 	return 1
 
 async def goodbye():
-	print("Goodbye")
 	await sleep(1)
-	print("Are you still there?")
+	print("Goodbye")
 	return 2
 
 async def main():
-	values = await join(hi(), goodbye())
-	print("The End")
+	tasks = await run_all([hi(), goodbye()])
+	results = list(await join(tasks))
+	print(results)
+	print("End")
 
 s = Scheduler()
 s.mainloop(main())

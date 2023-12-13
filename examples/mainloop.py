@@ -1,11 +1,9 @@
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from src import *
+from toy_async import *
 
 async def hi():
 	print("Hello")
 	await sleep(1)
-	print("What is your name?")
+	print("How are you?")
 	return 1
 
 async def goodbye():

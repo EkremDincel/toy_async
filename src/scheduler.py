@@ -2,6 +2,7 @@ from collections import deque
 from .result import Command
 from .task import Task
 from time import time
+from .local import set_default_scheduler, _running_guard
 
 __all__ = ["Scheduler"]
 
@@ -9,6 +10,8 @@ class Scheduler():
 	def __init__(self, debug = False):
 		self.awake = deque()
 		self.wakers = {}
+
+		set_default_scheduler(self)
 
 		# debug
 		self.debug = debug
@@ -47,6 +50,8 @@ class Scheduler():
 		self.spawn_tasks(tasks)
 		return tasks
 
+	# Question: is this a good place for this?
+	@_running_guard
 	def step_task(self, task, value, err = None):
 		self.step_count += 1
 		if err is not None:
@@ -119,3 +124,6 @@ class Scheduler():
 		self.run_until_completion()
 		self.close()
 		
+	# TODO: how should this work? wrap it in a task and return perhaps? should it be a coroutine or function?
+	def to_thread(self, coroutine):
+		pass

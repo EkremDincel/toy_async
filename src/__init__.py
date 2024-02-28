@@ -10,3 +10,4 @@ from .wakers import *
 from .commands import *
 from .sync import *
 from .utils import *
+from .local import *

@@ -5,19 +5,20 @@ from time import time
 
 __all__ = ["Scheduler"]
 
-def debug(*x):
-	d = 1
-	if d:
-		print(*x)
-
 class Scheduler():
-	def __init__(self):
+	def __init__(self, debug = False):
 		self.awake = deque()
 		self.wakers = {}
 
+		# debug
+		self.debug = debug
 		self.step_count = 0
 		self.total_sleep = 0
 		self.start = None
+
+	def log(self, *args, **kwargs):
+		if self.debug:
+			print(*args, **kwargs)
 
 	def put_to_sleep(self, task, waker_type, context):
 		try:
@@ -85,8 +86,8 @@ class Scheduler():
 				# io wakers simply need to return 0 for max_sleep and they will be used for sleeping
 				non_empty_wakers = filter(lambda x: not x.is_empty(), self.wakers.values())
 				waker, sleep_duration = min(((waker, waker.max_sleep()) for waker in non_empty_wakers), key = lambda x: x[1])
-				debug(sleep_duration)
-				#debug(self.awake)
+				self.log(sleep_duration)
+				#self.log(self.awake)
 				self.total_sleep += sleep_duration
 				waker.sleep(sleep_duration)
 		return False
@@ -105,9 +106,9 @@ class Scheduler():
 			if stop:
 				break
 			self.run_once()
-		debug("total steps:", self.step_count)
+		self.log("total steps:", self.step_count)
 		dilation = time() - self.start
-		debug("total uptime (seconds): {:.6f}/{:.6f}".format(dilation - self.total_sleep, dilation))
+		self.log("total uptime (seconds): {:.6f}/{:.6f}".format(dilation - self.total_sleep, dilation))
 
 	def close(self):
 		for waker in self.wakers.values():

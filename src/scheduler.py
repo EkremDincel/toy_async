@@ -1,7 +1,7 @@
 from collections import deque
 from .result import Command
 from .task import Task
-from time import time
+from .timer import now
 from .local import set_default_scheduler, _running_guard
 
 __all__ = ["Scheduler"]
@@ -17,6 +17,7 @@ class Scheduler():
 		self.debug = debug
 		self.step_count = 0
 		self.total_sleep = 0
+		self.total_wait_calls = 0
 		self.start = None
 
 	def log(self, *args, **kwargs):
@@ -50,27 +51,26 @@ class Scheduler():
 		self.spawn_tasks(tasks)
 		return tasks
 
-	# Question: is this a good place for this?
-	@_running_guard
-	def step_task(self, task, value, err = None):
+	def _step_task(self, task, value, err = None):
 		self.step_count += 1
 		if err is not None:
 			task.throw(err)
 
 		try:
-			result = task.coroutine.send(value)
+			result = task._get_coroutine().send(value)
 		except StopIteration as e:
-			task.set(e.value)
+			task._set(e.value)
 		else:
 			if result.command == Command.PUT_TO_SLEEP:
 				self.put_to_sleep(task, result.waker, result.context)
 			elif result.command == Command.SWITCH:
 				self.awake.append((task, None))
 			elif result.command == Command.GET:
-				self.step_task(task, self)
+				self._step_task(task, self)
 			else:
 				raise ValueError("Invalid Command", result.command)
 
+	@_running_guard # Question: is this a good place for this?
 	def run_once(self):
 		for waker in self.wakers.values():
 			waker()
@@ -78,12 +78,14 @@ class Scheduler():
 		lenght = len(self.awake)
 		for _ in range(lenght):
 			task, context = self.awake.popleft()
-			self.step_task(task, context)
+			self._step_task(task, context)
 
 	def wait(self):
 		lenght = len(self.awake)
 
 		if lenght == 0:
+			self.total_wait_calls += 1
+
 			if all(waker.is_empty() for waker in self.wakers.values()):
 				# there is no task left, neither awake nor asleep
 				return True
@@ -92,13 +94,15 @@ class Scheduler():
 				non_empty_wakers = filter(lambda x: not x.is_empty(), self.wakers.values())
 				waker, sleep_duration = min(((waker, waker.max_sleep()) for waker in non_empty_wakers), key = lambda x: x[1])
 				if sleep_duration > 0: # this happens sometimes
-					# self.log(self.awake)
-
-					start = time()
+					start = now()
 					waker.sleep(sleep_duration)
-					actual_sleep_duration = time() - start
+					actual_sleep_duration = start.interval()
 					self.total_sleep += actual_sleep_duration
-					self.log(sleep_duration, type(waker).__name__, actual_sleep_duration)
+
+					self.log("{:.6f}, {}, {:.6f}".format(sleep_duration, type(waker).__name__, actual_sleep_duration))
+				else:
+					pass
+					# self.log(f"Negative sleep_duration for {type(waker).__name__}: {sleep_duration}")
 		return False
 
 	def clear_wakers(self):
@@ -109,16 +113,19 @@ class Scheduler():
 				wakers.pop(type(waker))
 
 	def run_until_completion(self):
-		self.start = time()
+		self.start = now()
 		while True:
 			stop = self.wait()
 			if stop:
 				break
 			self.run_once()
+		dilation = self.start.interval()
 
 		self.log("total steps:", self.step_count)
-		dilation = time() - self.start
+		self.log("wait on wakers:", self.total_wait_calls)
 		self.log("total uptime (seconds): {:.6f}/{:.6f}".format(dilation - self.total_sleep, dilation))
+
+		return dilation
 
 	def close(self):
 		for waker in self.wakers.values():

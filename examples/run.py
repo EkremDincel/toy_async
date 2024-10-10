@@ -8,8 +8,8 @@ async def foo(x):
 
 
 async def multiple_tasks():
-    t1 = await run(foo("a"))
-    t2 = await run(foo("b"))
+    t1 = run(foo("a"))
+    t2 = run(foo("b"))
     print(await t1.wait(), await t2.wait())
 
 

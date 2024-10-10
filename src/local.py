@@ -17,7 +17,7 @@ def set_default_scheduler(scheduler):
 
 def get_current_scheduler(*args, **kwargs):
 	if _local.current is None:
-		# this is imported here to prevent a import cycle
+		# this is imported here to prevent an import cycle
 		from .scheduler import Scheduler
 		set_current_scheduler(Scheduler(*args, **kwargs))
 

@@ -1,4 +1,4 @@
-from time import time, sleep as thread_sleep
+from ..timer import timer, thread_sleep
 import heapq
 from .waker import AbstractWaker
 from ..commands import put_to_sleep
@@ -6,7 +6,7 @@ from ..commands import put_to_sleep
 __all__ = ["sleep"]
 
 def sleep(duration):
-	return put_to_sleep(WakerSleep, time() + duration)
+	return put_to_sleep(WakerSleep, timer() + duration)
 
 class WakerSleep(AbstractWaker):
 	def __init__(self, awaken):
@@ -15,7 +15,7 @@ class WakerSleep(AbstractWaker):
 		self.sleeping_sequence = 0
 
 	def __call__(self):
-		current_time = time()
+		current_time = timer()
 		while self.sleeping:
 			deadline, sequence, task = heapq.heappop(self.sleeping)
 			delta = deadline - current_time
@@ -26,13 +26,13 @@ class WakerSleep(AbstractWaker):
 		
 	def schedule(self, task, deadline):
 		self.sleeping_sequence += 1
-		# deadline = time() + context # we are doing this in the sleep call 
+		# deadline = timer() + context # we are doing this in the sleep call 
 		heapq.heappush(self.sleeping, (deadline, self.sleeping_sequence, task))
 
 	def max_sleep(self):
 		if self.is_empty():
 			return float("inf")
-		return self.sleeping[0][0] - time()
+		return self.sleeping[0][0] - timer()
 
 	def is_empty(self):
 		return not self.sleeping
@@ -41,16 +41,16 @@ class WakerSleep(AbstractWaker):
 		leeway = 1 / 100
 
 		if sleep_time - leeway > leeway:
-			before = time()
+			before = timer()
 			thread_sleep(sleep_time - leeway)
 
-			start = time()
+			start = timer()
 			spin_time = sleep_time - (start - before)
 		else:
-			start = time()
+			start = timer()
 			spin_time = sleep_time
 
-		while (time() - start) < spin_time:
+		while (timer() - start) < spin_time:
 			pass
 
 

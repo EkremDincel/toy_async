@@ -17,6 +17,10 @@ class AbstractWaker(abc.ABC):
 	def max_sleep(self):
 		pass
 
+	# @abc.abstractmethod
+	# def max_sleep_for_task(self): # task.waker.max_sleep_for_task(task) should be the used
+	# 	pass
+
 	@abc.abstractmethod
 	def is_empty(self):
 		pass

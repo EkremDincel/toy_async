@@ -13,7 +13,7 @@ async def goodbye():
 
 
 async def main():
-    tasks = await run_all([hi(), goodbye()])
+    tasks = run_all([hi(), goodbye()])
     for result in await join(tasks):
         print(result)
     print("End")

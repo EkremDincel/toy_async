@@ -1,6 +1,7 @@
 from .commands import get_scheduler
-from .wakers import sleep
 from .local import get_running_scheduler
+from .wakers.sleep import sleep
+from .wakers.join import join
 from functools import partial
 
 
@@ -13,6 +14,10 @@ def run_all(coroutines):
     s = get_running_scheduler()
     return s.create_tasks(coroutines)
 
+
+async def gather(coroutines):
+	tasks = run_all(coroutines)
+	return await join(tasks)
 
 def as_completed(coroutines):  # return an async iter
     pass

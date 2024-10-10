@@ -4,6 +4,6 @@
 import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from src import *
-
 del sys, os
+
+from src.prelude import *

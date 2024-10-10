@@ -1,5 +1,4 @@
-from toy_async import *
-
+from toy_async import call_delayed, call_later, switch, Scheduler
 
 async def delayed():
     for i in range(1, 4):

@@ -2,9 +2,9 @@ from toy_async import *
 
 
 async def display(x):
-    for i in range(x - 5, x):
-        await sleep(1)
-        print(i)
+	for i in range(x - 5, x):
+		await sleep(1)
+		print(i)
 
 
 s = Scheduler()

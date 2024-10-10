@@ -7,4 +7,4 @@ switch = result(Command.SWITCH)
 
 
 def put_to_sleep(waker, context=None):
-    return result(Command.PUT_TO_SLEEP, context, waker)
+	return result(Command.PUT_TO_SLEEP, context, waker)

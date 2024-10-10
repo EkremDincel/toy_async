@@ -5,23 +5,23 @@ _monotonic = _timer()
 
 
 def timer():
-    global _monotonic
-    current_time = _timer()
-    if current_time > _monotonic:
-        _monotonic = current_time
-    return _monotonic
+	global _monotonic
+	current_time = _timer()
+	if current_time > _monotonic:
+		_monotonic = current_time
+	return _monotonic
 
 
 class Instant:
-    def __init__(self):
-        self.time = timer()
+	def __init__(self):
+		self.time = timer()
 
-    def interval(self):
-        return timer() - self.time
+	def interval(self):
+		return timer() - self.time
 
-    def __repr__(self):
-        return f"Instant({self.time})"
+	def __repr__(self):
+		return f"Instant({self.time})"
 
 
 def now():
-    return Instant()
+	return Instant()

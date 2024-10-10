@@ -1,28 +1,28 @@
 def toy_async():
-    from toy_async import Scheduler, gather, sleep
+	from toy_async import Scheduler, gather, sleep
 
-    async def nop():
-        await sleep(1)
-        return 1
+	async def nop():
+		await sleep(1)
+		return 1
 
-    async def main():
-        print(sum(await gather(nop() for i in range(100000))))
+	async def main():
+		print(sum(await gather(nop() for i in range(100000))))
 
-    s = Scheduler()
-    s.mainloop(main())
+	s = Scheduler()
+	s.mainloop(main())
 
 
 def asyncio():
-    import asyncio
+	import asyncio
 
-    async def nop():
-        await asyncio.sleep(1)
-        return 1
+	async def nop():
+		await asyncio.sleep(1)
+		return 1
 
-    async def main():
-        print(sum(await asyncio.gather(*(nop() for i in range(100000)))))
+	async def main():
+		print(sum(await asyncio.gather(*(nop() for i in range(100000)))))
 
-    asyncio.run(main())
+	asyncio.run(main())
 
 
 from timeit import default_timer

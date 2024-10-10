@@ -8,7 +8,6 @@ def toy_async():
     async def main():
         print(sum(await gather(nop() for i in range(100000))))
 
-
     s = Scheduler()
     s.mainloop(main())
 
@@ -20,11 +19,11 @@ def asyncio():
         await asyncio.sleep(1)
         return 1
 
-
     async def main():
         print(sum(await asyncio.gather(*(nop() for i in range(100000)))))
 
     asyncio.run(main())
+
 
 from timeit import default_timer
 

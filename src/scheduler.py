@@ -21,7 +21,7 @@ class Scheduler():
 
 	def log(self, *args, **kwargs):
 		if self.debug:
-			print(*args, **kwargs)
+			print("INFO:\t", *args, **kwargs)
 
 	def put_to_sleep(self, task, waker_type, context):
 		try:
@@ -91,10 +91,14 @@ class Scheduler():
 				# io wakers simply need to return 0 for max_sleep and they will be used for sleeping
 				non_empty_wakers = filter(lambda x: not x.is_empty(), self.wakers.values())
 				waker, sleep_duration = min(((waker, waker.max_sleep()) for waker in non_empty_wakers), key = lambda x: x[1])
-				self.log(sleep_duration)
-				#self.log(self.awake)
-				self.total_sleep += sleep_duration
-				waker.sleep(sleep_duration)
+				if sleep_duration > 0: # this happens sometimes
+					# self.log(self.awake)
+
+					start = time()
+					waker.sleep(sleep_duration)
+					actual_sleep_duration = time() - start
+					self.total_sleep += actual_sleep_duration
+					self.log(sleep_duration, type(waker).__name__, actual_sleep_duration)
 		return False
 
 	def clear_wakers(self):
@@ -111,6 +115,7 @@ class Scheduler():
 			if stop:
 				break
 			self.run_once()
+
 		self.log("total steps:", self.step_count)
 		dilation = time() - self.start
 		self.log("total uptime (seconds): {:.6f}/{:.6f}".format(dilation - self.total_sleep, dilation))

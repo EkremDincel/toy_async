@@ -10,5 +10,7 @@ class Task:
 		self.finished = True
 		self.result = result
 
-	async def join(self):
-		pass
+	async def wait(self):
+		while not self.finished:
+			await switch
+		return self.result

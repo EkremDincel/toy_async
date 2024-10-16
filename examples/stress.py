@@ -11,7 +11,8 @@ def toy_async_stress():
 		return 1
 
 	async def main():
-		print(sum(await gather(nop() for i in range(100000))))
+		# TODO: make the return type of these a Result and add methods similar to Task (result_or_raise etc) 
+		print(sum(map(lambda t: t[0], await gather(nop() for i in range(100000)))))
 
 	s = Scheduler()
 	s.mainloop(main())

@@ -1,6 +1,9 @@
-def toy_async():
-	from toy_async import Scheduler, gather, sleep
+from toy_async import Scheduler, gather, sleep
+import asyncio
+from timeit import default_timer
 
+
+def toy_async():
 	async def nop():
 		await sleep(1)
 		return 1
@@ -13,8 +16,6 @@ def toy_async():
 
 
 def asyncio():
-	import asyncio
-
 	async def nop():
 		await asyncio.sleep(1)
 		return 1
@@ -24,8 +25,6 @@ def asyncio():
 
 	asyncio.run(main())
 
-
-from timeit import default_timer
 
 now = default_timer()
 toy_async()

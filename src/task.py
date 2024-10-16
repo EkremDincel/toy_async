@@ -19,7 +19,7 @@ class TaskNotFinishedError(RuntimeError):
 	pass
 
 
-class AbstractTask:
+class AbstractTask(ABC):
 	@abstractmethod
 	def _set_result(self, result):
 		raise NotImplementedError()

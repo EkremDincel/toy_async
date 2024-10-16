@@ -1,3 +1,5 @@
+# ruff: noqa: F401
+
 from .scheduler import Scheduler
 from .wakers.join import join
 from .wakers.sleep import sleep

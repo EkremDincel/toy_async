@@ -16,7 +16,7 @@ class Repeater:
 			current = 0
 			while True:
 				result = function()
-				if result is not None and result == False:
+				if result is not None and not result:
 					break
 
 				current += 1

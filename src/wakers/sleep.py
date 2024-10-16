@@ -39,6 +39,7 @@ class WakerSleep(AbstractWaker):
 	def is_empty(self):
 		return not self.sleeping
 
+	# todo: look into https://stackoverflow.com/a/43505033
 	def sleep(self, sleep_time):
 		leeway = 1 / 100
 

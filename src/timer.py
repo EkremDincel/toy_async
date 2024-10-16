@@ -1,5 +1,11 @@
 from timeit import default_timer as _timer
 
+try:
+	from time import _noasyncwarning_sleep as thread_sleep # if warnings.py wrapped the sleep function
+except ImportError:
+	from time import sleep as thread_sleep # noqa: F401
+
+
 _monotonic = _timer()
 
 

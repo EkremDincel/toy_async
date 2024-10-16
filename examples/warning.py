@@ -2,9 +2,9 @@ from toy_async import enable_warnings, Scheduler, sleep, AbortTaskError
 
 enable_warnings()  # enable all warnings *before* importing any other module
 
-from time import sleep as thread_sleep # noqa: F401
-import traceback # noqa: F401
-import sys # noqa: F401
+from time import sleep as thread_sleep # noqa: E402
+import traceback # noqa: E402
+import sys # noqa: E402
 
 
 async def wrong_sleep():

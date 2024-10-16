@@ -3,7 +3,7 @@ import asyncio
 from timeit import default_timer
 
 
-def toy_async():
+def toy_async_stress():
 	async def nop():
 		await sleep(1)
 		return 1
@@ -15,7 +15,7 @@ def toy_async():
 	s.mainloop(main())
 
 
-def asyncio():
+def asyncio_stress():
 	async def nop():
 		await asyncio.sleep(1)
 		return 1
@@ -27,9 +27,9 @@ def asyncio():
 
 
 now = default_timer()
-toy_async()
+toy_async_stress()
 print("toy_async", default_timer() - now)
 
 now = default_timer()
-asyncio()
+asyncio_stress()
 print("asyncio", default_timer() - now)

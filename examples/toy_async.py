@@ -7,4 +7,4 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 del sys, os
 
-from src.prelude import *
+from src.prelude import * # noqa: E402

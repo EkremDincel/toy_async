@@ -76,7 +76,7 @@ class Scheduler:
 				result = task._resume(value)
 		except StopIteration as e:
 			task._set_result(e.value)
-		except BaseException as e:
+		except BaseException as e: # WARNING: this can quietly discard the errors caused by the runtime 
 			task._set_error(e)
 			if err is not None and task._waker is not None:
 				task._waker.unschedule(task)

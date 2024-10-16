@@ -10,7 +10,10 @@ class StepResult:
 
 	def __await__(self):
 		# return is used for returning the value back to the coroutine
-		return (yield self)
+		try:
+			return (yield self)
+		except BaseException as e:
+			raise e
 
 
 result = StepResult

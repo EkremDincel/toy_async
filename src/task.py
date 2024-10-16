@@ -2,34 +2,64 @@ from abc import ABC, abstractmethod
 from .commands import switch
 from .timer import now
 
+# see for atomics https://stackoverflow.com/a/27062830
+
+class CancelledError(GeneratorExit): # Question: GeneratorExit is raised in coroutine.close anyway. Is cancel method necessary?
+	pass
+
+
+class TaskNotFinishedError(RuntimeError):
+	pass
 
 class AbstractTask:
 	@abstractmethod
-	def _set(self, result):
+	def _set_result(self, result):
 		raise NotImplementedError()
 
 	@abstractmethod
-	def _get_coroutine(self):
+	def _set_error(self, error):
+		raise NotImplementedError()
+
+	@abstractmethod
+	def send(self, arg):
 		raise NotImplementedError()
 
 	@abstractmethod
 	def finished(self):
 		raise NotImplementedError()
 
-	# @abstractmethod
-	# def cancel(self):
-	# 	raise NotImplementedError()
+	@abstractmethod
+	def error(self):
+		raise NotImplementedError()
+
+	@abstractmethod
+	def result(self):
+		raise NotImplementedError()
+
+	@abstractmethod
+	def result_or_raise(self):
+		raise NotImplementedError()
+
+	@abstractmethod
+	async def wait(self, timeout):
+		raise NotImplementedError()
 
 	@abstractmethod
 	def throw(self, error):
 		raise NotImplementedError()
 
 	@abstractmethod
-	def result(self, timeout):
+	def cancel(self, *args, **kwargs):
 		raise NotImplementedError()
 
 	@abstractmethod
-	async def wait(self, timeout):
+	def close(self):
+		raise NotImplementedError()
+
+	def name(self):
+		raise NotImplementedError()
+
+	def set_name(self):
 		raise NotImplementedError()
 
 
@@ -39,13 +69,19 @@ class Task(AbstractTask):
 		self._coroutine = coroutine
 		self._finished = False
 		self._result = None
+		self._exception = None
+		self._name = coroutine.__name__
 
-	def _get_coroutine(self):
-		return self._coroutine
+	def send(self, arg):
+		return self._coroutine.send(arg)
 
-	def _set(self, result):
+	def _set_result(self, result):
 		self._finished = True
 		self._result = result
+
+	def _set_error(self, error):
+		self._finished = True
+		self._exception = error
 
 	def finished(self):
 		return self._finished
@@ -56,8 +92,47 @@ class Task(AbstractTask):
 			await switch
 		return self._result
 
-	async def throw(self, error):
+	def throw(self, error):
 		return self._coroutine.throw(error)
 
+	def cancel(self, *args, **kwargs):
+		return self.throw(CancelledError(*args, **kwargs))
+
+	def error(self):
+		if self._finished:
+			return self._exception
+		raise TaskNotFinishedError(self)
+
 	def result(self):
-		return self._result  # Question: should we raise if we didnt finish?
+		if self._finished:
+			return self._result
+		raise TaskNotFinishedError(self)
+
+	def result_or_raise(self):
+		if self._finished:
+			if self._exception is not None:
+				raise self._exception
+			return self._result
+		raise TaskNotFinishedError(self)
+
+	def close(self):
+		return self._coroutine.close()
+
+	def name(self):
+		return self._name
+
+	def set_name(self, name):
+		self._name = name
+
+
+class ThreadTask(Task):
+	pass
+
+class CallbackTask(Task):
+	pass
+
+class ChildTask(Task):
+	pass
+
+class ShieldTask(Task):
+	pass

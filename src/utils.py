@@ -1,8 +1,6 @@
-from .commands import get_scheduler
 from .local import get_running_scheduler
 from .wakers.sleep import sleep
 from .wakers.join import join
-from functools import partial
 
 
 def run(coroutine):

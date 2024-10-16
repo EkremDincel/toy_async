@@ -1,4 +1,4 @@
-from .waker import AbstractWaker, result
+from .waker import AbstractWaker
 
 
 class WakerCondition(AbstractWaker):

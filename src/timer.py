@@ -1,5 +1,4 @@
 from timeit import default_timer as _timer
-from time import sleep as thread_sleep
 
 _monotonic = _timer()
 

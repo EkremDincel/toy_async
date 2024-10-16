@@ -1,5 +1,4 @@
 from collections import deque
-from threading import Thread
 from .result import Command
 from .task import Task, AbstractTask
 from .timer import now

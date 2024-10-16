@@ -1,5 +1,4 @@
 import abc
-from collections import namedtuple
 
 
 class AbstractWaker(abc.ABC):

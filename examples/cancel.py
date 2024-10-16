@@ -13,7 +13,7 @@ async def foo(x):
 
 async def multiple_tasks():
 	task = run(foo("Hello"))
-	# await sleep(0.5)
+	await sleep(0.5)
 	print("Canceling foo")
 	task.cancel()
 	print("Cancelled foo")

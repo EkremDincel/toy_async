@@ -27,13 +27,22 @@ class Scheduler:
 		if self.debug:
 			print("INFO:\t", *args, **kwargs)
 
+	def _awaken(self, arg):
+		task = arg[0]
+		task._waker = None
+		if not task.finished(): # !!! NOTE: wakers might try awakening canceled tasks
+			# print("Awakening", task.finished()) # last: why is this false
+			self.awake.append(arg)
+
 	def put_to_sleep(self, task, waker_type, context):  # Todo: make private?
 		try:
 			waker = self.wakers[waker_type]
 		# since this will be a cold path we are using try except instead of setdefault
 		except KeyError:
-			waker = self.wakers[waker_type] = waker_type(self.awake.append)
+			waker = self.wakers[waker_type] = waker_type(self._awaken)
 
+		task._waker = waker
+		self.log(f"set waker of {task} to {type(waker)}")
 		waker.schedule(task, context)
 
 	def spawn_task(self, task):
@@ -56,23 +65,21 @@ class Scheduler:
 
 	def _step_task(self, task, value, err=None):
 		self.step_count += 1
-
+		
 		try:
 			if err is not None:
 				self.log("Throwing into:", task.name())
-				task.throw(err)
-				return # ???
+				result = task.throw(err)
 			else:
 				self.log("Sending to:", task.name())
-				result = task.send(value)
+				result = task._resume(value)
 		except StopIteration as e:
 			task._set_result(e.value)
-		# except GeneratorExit as e:
-		# 	task._set_error(e)
-		# except RuntimeError as e:  # LAST: cancel.py is problematic
-		# 	task._set_error(e)
 		except BaseException as e:
 			task._set_error(e)
+			if err is not None and task._waker is not None:
+				# print("unschedule", task)
+				task._waker.unschedule(task)
 		else:
 			if result.command == Command.PUT_TO_SLEEP:
 				self.put_to_sleep(task, result.waker, result.context)
@@ -109,6 +116,8 @@ class Scheduler:
 					((waker, waker.max_sleep()) for waker in non_empty_wakers),
 					key=lambda x: x[1],
 				)
+				if sleep_duration == float("inf"):
+					return True
 				if sleep_duration > 0:  # this happens sometimes
 					start = now()
 					waker.sleep(sleep_duration)

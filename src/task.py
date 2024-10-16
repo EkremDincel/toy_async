@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from .commands import switch
 from .timer import now
+from .local import get_running_scheduler
 
 # see for atomics https://stackoverflow.com/a/27062830
 
@@ -33,7 +34,7 @@ class AbstractTask(ABC):
 		raise NotImplementedError()
 
 	@abstractmethod
-	def send(self, arg):
+	def _resume(self, arg):
 		raise NotImplementedError()
 
 	@abstractmethod
@@ -57,7 +58,7 @@ class AbstractTask(ABC):
 		raise NotImplementedError()
 
 	@abstractmethod
-	def throw(self, error):
+	def _throw(self, error):
 		raise NotImplementedError()
 
 	@abstractmethod
@@ -84,7 +85,7 @@ class Task(AbstractTask):
 		self._exception = None # note: None cannot be used with raise, so this means no exception
 		self._name = coroutine.__name__
 
-	def send(self, arg):
+	def _resume(self, arg):
 		return self._coroutine.send(arg)
 
 	def _set_result(self, result):
@@ -107,11 +108,14 @@ class Task(AbstractTask):
 			await switch
 		return self._result
 
-	def throw(self, error):
-		return self._coroutine.throw(error)
+	def _throw(self, error):
+			return self._coroutine.throw(error)
 
-	def cancel(self, *args, **kwargs):
-		return self.throw(TaskCancelledError(*args, **kwargs))
+	def cancel(self, *args, **kwargs): # NOTE: the task might step once more before the cancelation
+		if self._waker is not None:
+			# print("unschedule", self)
+			self._waker.unschedule(self)
+		get_running_scheduler()._awaken((self, None, TaskCancelledError(*args, **kwargs)))
 
 	def error(self):
 		if self._finished:
@@ -138,6 +142,9 @@ class Task(AbstractTask):
 
 	def set_name(self, name):
 		self._name = name
+
+	def __repr__(self):
+		return f"Task({self._name!r})"
 
 
 class ThreadTask(Task):

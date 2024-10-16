@@ -1,10 +1,11 @@
 from toy_async import enable_warnings, Scheduler, sleep, AbortTaskError
 
-enable_warnings() # enable all warnings *before* importing any other module
+enable_warnings()  # enable all warnings *before* importing any other module
 
 from time import sleep as thread_sleep
 import traceback
 import sys
+
 
 async def wrong_sleep():
 	try:
@@ -17,9 +18,11 @@ async def wrong_sleep():
 	finally:
 		print("Called wrong_sleep")
 
+
 async def right_sleep():
 	await sleep(1)
 	print("Called right_sleep")
+
 
 s = Scheduler()
 s.create_tasks([right_sleep(), wrong_sleep()])

@@ -26,7 +26,7 @@ class Scheduler:
 		if self.debug:
 			print("INFO:\t", *args, **kwargs)
 
-	def put_to_sleep(self, task, waker_type, context): # Todo: make private?
+	def put_to_sleep(self, task, waker_type, context):  # Todo: make private?
 		try:
 			waker = self.wakers[waker_type]
 		# since this will be a cold path we are using try except instead of setdefault
@@ -143,7 +143,7 @@ class Scheduler:
 
 		return dilation
 
-	def close(self, timeout = 0): # TODO: implement timeout
+	def close(self, timeout=0):  # TODO: implement timeout
 		for waker in self.wakers.values():
 			waker.close()
 		self.clear_wakers()

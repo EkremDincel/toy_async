@@ -5,7 +5,9 @@ from .timer import now
 # see for atomics https://stackoverflow.com/a/27062830
 
 
-class TaskCancelledError(GeneratorExit):  # Question: GeneratorExit is raised in coroutine.close anyway. Is cancel method necessary?
+class TaskCancelledError(
+	GeneratorExit
+):  # Question: GeneratorExit is raised in coroutine.close anyway. Is cancel method necessary?
 	pass
 
 

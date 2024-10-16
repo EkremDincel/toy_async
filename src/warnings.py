@@ -2,7 +2,8 @@ import time
 from functools import wraps
 from .local import in_async_context
 
-def _wrap_in_warning(obj, name, warning, condition = lambda: True):
+
+def _wrap_in_warning(obj, name, warning, condition=lambda: True):
 	func = getattr(obj, name)
 
 	@wraps(func)

@@ -118,11 +118,15 @@ class Scheduler:
 		return False
 
 	def clear_wakers(self):
+		wakers_to_pop = []
 		for waker in self.wakers.values():
 			# might use a way to keep track how long the waker stays unused here
 			# also we might want to have a list of permanent wakers
 			if waker.is_empty():
-				self.wakers.pop(type(waker))
+				wakers_to_pop.append(waker)
+
+		for waker in wakers_to_pop:
+			self.wakers.pop(type(waker))
 
 	def run_until_completion(self):
 		self.start = now()
@@ -139,13 +143,20 @@ class Scheduler:
 
 		return dilation
 
-	def close(self):
+	def close(self, timeout = 0): # TODO: implement timeout
 		for waker in self.wakers.values():
 			waker.close()
 		self.clear_wakers()
 
 		for task in self.awake:
 			task.close()
+
+		assert len(self.wakers) == 0, "Couldn't close all wakers"
+		assert len(self.awake) == 0, "Couldn't close all tasks"
+
+	def __del__(self):
+		pass
+		# TODO: check if closed
 
 	def mainloop(self, coroutine, wait_for_spawned=True):  # TODO: implement wait_for_spawned
 		task = self.create_task(coroutine)

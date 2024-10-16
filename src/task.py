@@ -5,7 +5,11 @@ from .timer import now
 # see for atomics https://stackoverflow.com/a/27062830
 
 
-class CancelledError(GeneratorExit):  # Question: GeneratorExit is raised in coroutine.close anyway. Is cancel method necessary?
+class TaskCancelledError(GeneratorExit):  # Question: GeneratorExit is raised in coroutine.close anyway. Is cancel method necessary?
+	pass
+
+
+class AbortTaskError(GeneratorExit):
 	pass
 
 
@@ -98,7 +102,7 @@ class Task(AbstractTask):
 		return self._coroutine.throw(error)
 
 	def cancel(self, *args, **kwargs):
-		return self.throw(CancelledError(*args, **kwargs))
+		return self.throw(TaskCancelledError(*args, **kwargs))
 
 	def error(self):
 		if self._finished:
@@ -139,5 +143,5 @@ class ChildTask(Task):
 	pass
 
 
-class ShieldTask(Task):
+class ShieldableTask(Task):
 	pass

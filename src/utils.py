@@ -28,16 +28,18 @@ def select(coroutines, n=1):  # select the first completed
 	pass
 
 
-def call_later(function):
+def call_soon(function):
 	async def inner():
 		return function()
 
 	return run(inner())
 
 
-def call_delayed(function, delay):
+def call_later(function, delay):
 	async def inner():
 		await sleep(delay)
 		return function()
 
 	return run(inner())
+
+# def async unconstra

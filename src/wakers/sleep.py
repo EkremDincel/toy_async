@@ -67,8 +67,10 @@ class WakerSleep(AbstractWaker):
 			pass
 
 	def close(self):
-		for task in self.sleeping:
+		for _, _, task in self.sleeping:
 			task.close()
+		self.removed.clear()
+		self.sleeping.clear()
 
 	def __repr__(self):
 		return repr(self.sleeping)

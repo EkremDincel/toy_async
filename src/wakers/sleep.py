@@ -14,6 +14,7 @@ class WakerSleep(AbstractWaker):
 	def __init__(self, awaken):
 		self.awaken = awaken
 		self.sleeping = []
+		self.removed = set()
 		self.sleeping_sequence = 0
 
 	def __call__(self):
@@ -31,10 +32,19 @@ class WakerSleep(AbstractWaker):
 		# deadline = timer() + context # we are doing this in the sleep call
 		heapq.heappush(self.sleeping, (deadline, self.sleeping_sequence, task))
 
+	def unschedule(self, task):
+		self.removed.add(task)
+
 	def max_sleep(self):
-		if self.is_empty():
-			return float("inf")
-		return self.sleeping[0][0] - timer()
+		while self.sleeping:
+			deadline, _seq, task = self.sleeping[0]
+			if task in self.removed: # if the task is canceled, just pass it
+				self.removed.remove(task)
+				heapq.heappop(self.sleeping)
+			else:
+				return deadline - timer()
+
+		return float("inf")
 
 	def is_empty(self):
 		return not self.sleeping

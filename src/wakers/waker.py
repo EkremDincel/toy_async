@@ -15,6 +15,10 @@ class AbstractWaker(abc.ABC):
 		pass
 
 	@abc.abstractmethod
+	def unschedule(self, task):
+		pass
+
+	@abc.abstractmethod
 	def max_sleep(self):
 		pass
 

@@ -18,7 +18,7 @@ async def goodbye():
 async def main():
 	print(await hi())
 	print(await goodbye())
-
+	return 3
 
 s = Scheduler()
-s.mainloop(main())
+assert s.mainloop(main()) == 3, "Wrong return value."

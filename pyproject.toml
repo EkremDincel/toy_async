@@ -1,7 +1,7 @@
 [project]
 name = "toy-async"
 version = "0.1.0"
-description = "A custom async scheduler and utilities."
+description = "A custom asynchronous runtime and utilities."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []

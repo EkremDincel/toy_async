@@ -1,3 +1,5 @@
+# this is a very crude and one dimensional performance test, but it is better than nothing
+
 from toy_async import Scheduler, gather, sleep
 import asyncio
 from timeit import default_timer

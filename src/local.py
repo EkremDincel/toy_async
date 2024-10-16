@@ -10,6 +10,7 @@ __all__ = [
 	"set_default_scheduler",
 	"get_current_scheduler",
 	"get_running_scheduler",
+	"in_async_context",
 ]
 
 
@@ -37,6 +38,12 @@ def get_running_scheduler():
 	if _local.running is None:
 		raise ValueError("No running scheduler")
 	return _local.running
+
+
+def in_async_context():
+	if _local.running is None:
+		return False
+	return True
 
 
 def _running_guard(f):

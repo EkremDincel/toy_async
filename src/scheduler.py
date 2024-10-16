@@ -178,7 +178,7 @@ class Scheduler:
 			if self.debug:
 				raise RuntimeError("The Scheduler is not closed.")
 
-	def mainloop(self, coroutine, wait_for_spawned=True):  # TODO: implement wait_for_spawned
+	def mainloop(self, coroutine, wait_for_spawned=True):  # TODO: implement wait_for_spawned (using Task.cancel maybe?)
 		task = self.create_task(coroutine)
 		task.set_name("{} (mainloop)".format(task.name()))
 		self.run_until_completion()

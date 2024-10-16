@@ -121,7 +121,7 @@ class Task(AbstractTask):
 		self._cancelled = True
 		get_running_scheduler()._awaken((self, None, TaskCancelledError(*args, **kwargs)))
 
-	def cancelled():
+	def cancelled(self):
 		return self._cancelled
 
 	def error(self):

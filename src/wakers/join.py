@@ -27,6 +27,9 @@ class WakerJoin(AbstractWaker):
 	def schedule(self, task, context):
 		self.joined[task] = context
 
+	def unschedule(self, task):
+		del self.joined[task]
+
 	def max_sleep(self):
 		# TODO: hata burada
 		return float("inf")
@@ -42,4 +45,4 @@ class WakerJoin(AbstractWaker):
 			task.close()
 
 	def __repr__(self):
-		return repr(self.sleeping)
+		return repr(self.joined)

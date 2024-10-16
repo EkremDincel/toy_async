@@ -9,16 +9,16 @@ async def hi():
 async def goodbye():
 	await sleep(1)
 	print("Goodbye")
-	raise ValueError()
+	raise ValueError("Error")
 
 
 async def main():
 	tasks = run_all([hi(), goodbye()])
-	for result, exception in await join(tasks):
+	for task, (result, exception) in zip(tasks, await join(tasks)):
 		if exception is None:
-			print("Return:", repr(result))
+			print(f"[{task.name()}] return:", repr(result))
 		else:
-			print("Exception:", repr(exception))
+			print(f"[{task.name()}] exception:", repr(exception))
 	print("End")
 
 

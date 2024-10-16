@@ -116,8 +116,7 @@ class Scheduler:
 					((waker, waker.max_sleep()) for waker in non_empty_wakers),
 					key=lambda x: x[1],
 				)
-				if sleep_duration == float("inf"):
-					return True
+
 				if sleep_duration > 0:  # this happens sometimes
 					start = now()
 					waker.sleep(sleep_duration)
@@ -164,15 +163,20 @@ class Scheduler:
 		for task in self.awake:
 			task.close()
 
-		assert len(self.wakers) == 0, "Couldn't close all wakers"
-		assert len(self.awake) == 0, "Couldn't close all tasks"
+		if self.wakers:
+			self.log(self.wakers)
+			raise RuntimeError("Couldn't close all wakers")
+		if self.awake:
+			self.log(self.awake)
+			raise RuntimeError("Couldn't close all tasks")
 
 		self.closed = True
 
 	def __del__(self):
 		if not self.closed:
-			raise RuntimeError("The Scheduler is not closed.")
 			self.close()
+			if self.debug:
+				raise RuntimeError("The Scheduler is not closed.")
 
 	def mainloop(self, coroutine, wait_for_spawned=True):  # TODO: implement wait_for_spawned
 		task = self.create_task(coroutine)

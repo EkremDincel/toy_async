@@ -44,7 +44,7 @@ class WakerSleep(AbstractWaker):
 			else:
 				return deadline - timer()
 
-		return float("inf")
+		return 0
 
 	def is_empty(self):
 		return not self.sleeping

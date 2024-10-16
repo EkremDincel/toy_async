@@ -1,6 +1,7 @@
 from collections import deque
+from threading import Thread
 from .result import Command
-from .task import Task
+from .task import Task, AbstractTask, CancelledError
 from .timer import now
 from .local import set_default_scheduler, _running_guard
 
@@ -35,20 +36,20 @@ class Scheduler:
 		waker.schedule(task, context)
 
 	def spawn_task(self, task):
-		assert isinstance(task, Task), "didn't suplied a task"
+		assert isinstance(task, AbstractTask), "didn't suplied a task"
 		self.awake.append((task, None))
 
 	def spawn_tasks(self, tasks):
-		assert all(map(lambda x: isinstance(x, Task), tasks)), "didn't suplied a task"
+		assert all(map(lambda x: isinstance(x, AbstractTask), tasks)), "didn't suplied a task"
 		self.awake.extend((task, None) for task in tasks)
 
-	def create_task(self, coroutine):
-		task = Task(coroutine)
+	def create_task(self, coroutine, task_type = Task):
+		task = task_type(coroutine)
 		self.spawn_task(task)
 		return task
 
-	def create_tasks(self, coroutines):
-		tasks = tuple(map(Task, coroutines))
+	def create_tasks(self, coroutines, task_type = Task):
+		tasks = tuple(map(task_type, coroutines))
 		self.spawn_tasks(tasks)
 		return tasks
 
@@ -58,9 +59,16 @@ class Scheduler:
 			task.throw(err)
 
 		try:
-			result = task._get_coroutine().send(value)
+			self.log("Sending to:", task.name())
+			result = task.send(value)
 		except StopIteration as e:
-			task._set(e.value)
+			task._set_result(e.value)
+		except CancelledError as e:
+			task._set_error(e)
+		except RuntimeError as e: # LAST: cancel.py is problematic
+			task._set_error(e)
+		except BaseException as e:
+			raise e
 		else:
 			if result.command == Command.PUT_TO_SLEEP:
 				self.put_to_sleep(task, result.waker, result.context)
@@ -134,12 +142,16 @@ class Scheduler:
 	def close(self):
 		for waker in self.wakers.values():
 			waker.close()
+		for task in self.awake:
+			task.close()
 
-	def mainloop(self, coroutine):
-		self.create_task(coroutine)
+	def mainloop(self, coroutine, wait_for_spawned = True): # TODO: implement wait_for_spawned
+		task = self.create_task(coroutine)
+		task.set_name("{} (mainloop)".format(task.name()))
 		self.run_until_completion()
 		self.close()
+		return task.result_or_raise()
 
 	# TODO: how should this work? wrap it in a task and return perhaps? should it be a coroutine or function?
-	def to_thread(self, coroutine):
+	def in_new_thread(self, coroutine):
 		pass

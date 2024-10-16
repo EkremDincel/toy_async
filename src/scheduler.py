@@ -26,10 +26,10 @@ class Scheduler:
 		if self.debug:
 			print("INFO:\t", *args, **kwargs)
 
-	def put_to_sleep(self, task, waker_type, context):
+	def put_to_sleep(self, task, waker_type, context): # Todo: make private?
 		try:
 			waker = self.wakers[waker_type]
-		# since this will be a cold path we are using try except instead of set_default
+		# since this will be a cold path we are using try except instead of setdefault
 		except KeyError:
 			waker = self.wakers[waker_type] = waker_type(self.awake.append)
 
@@ -122,7 +122,7 @@ class Scheduler:
 			# might use a way to keep track how long the waker stays unused here
 			# also we might want to have a list of permanent wakers
 			if waker.is_empty():
-				wakers.pop(type(waker))
+				self.wakers.pop(type(waker))
 
 	def run_until_completion(self):
 		self.start = now()
@@ -142,6 +142,8 @@ class Scheduler:
 	def close(self):
 		for waker in self.wakers.values():
 			waker.close()
+		self.clear_wakers()
+
 		for task in self.awake:
 			task.close()
 

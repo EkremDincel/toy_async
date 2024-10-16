@@ -1,7 +1,7 @@
 from collections import deque
 from threading import Thread
 from .result import Command
-from .task import Task, AbstractTask, CancelledError
+from .task import Task, AbstractTask
 from .timer import now
 from .local import set_default_scheduler, _running_guard
 
@@ -63,7 +63,7 @@ class Scheduler:
 			result = task.send(value)
 		except StopIteration as e:
 			task._set_result(e.value)
-		except CancelledError as e:
+		except GeneratorExit as e:
 			task._set_error(e)
 		except RuntimeError as e: # LAST: cancel.py is problematic
 			task._set_error(e)

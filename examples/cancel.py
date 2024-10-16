@@ -24,6 +24,6 @@ async def multiple_tasks():
 	else:
 		print("foo terminated with a return value:", repr(result))
 
+
 s = Scheduler(debug=False)
 s.mainloop(multiple_tasks())
-

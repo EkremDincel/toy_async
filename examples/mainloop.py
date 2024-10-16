@@ -20,5 +20,6 @@ async def main():
 	print(await goodbye())
 	return 3
 
+
 s = Scheduler()
 assert s.mainloop(main()) == 3, "Wrong return value."

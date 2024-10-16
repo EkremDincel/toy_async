@@ -38,7 +38,7 @@ class WakerSleep(AbstractWaker):
 	def max_sleep(self):
 		while self.sleeping:
 			deadline, _seq, task = self.sleeping[0]
-			if task in self.removed: # if the task is canceled, just pass it
+			if task in self.removed:  # if the task is canceled, just pass it
 				self.removed.remove(task)
 				heapq.heappop(self.sleeping)
 			else:

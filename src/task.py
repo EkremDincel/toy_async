@@ -83,8 +83,8 @@ class Task(AbstractTask):
 		self._waker = None  # todo: try using this for JoinWaker or task.wait
 		self._coroutine = coroutine
 		self._finished = False
-		self._result = None # I don't know how good of an idea this is
-		self._exception = None # note: None cannot be used with raise, so this means no exception
+		self._result = None  # I don't know how good of an idea this is
+		self._exception = None  # note: None cannot be used with raise, so this means no exception
 		self._name = coroutine.__name__
 
 	def _resume(self, arg):
@@ -111,9 +111,9 @@ class Task(AbstractTask):
 		return self.result_or_raise()
 
 	def _throw(self, error):
-			return self._coroutine.throw(error)
+		return self._coroutine.throw(error)
 
-	def cancel(self, *args, **kwargs): # NOTE: the task might step once more before the cancelation
+	def cancel(self, *args, **kwargs):  # NOTE: the task might step once more before the cancelation
 		if self._waker is not None:
 			self._waker.unschedule(self)
 		if self._cancelled:
@@ -145,7 +145,7 @@ class Task(AbstractTask):
 			return self._result
 		raise TaskNotFinishedError(self)
 
-	def close(self): # Question: should this be public?
+	def close(self):  # Question: should this be public?
 		return self._coroutine.close()
 
 	def name(self):

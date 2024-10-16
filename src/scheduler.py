@@ -66,7 +66,7 @@ class Scheduler:
 
 	def _step_task(self, task, value, err=None):
 		self.step_count += 1
-		
+
 		try:
 			if err is not None:
 				self.log("Throwing into:", task.name())
@@ -76,7 +76,7 @@ class Scheduler:
 				result = task._resume(value)
 		except StopIteration as e:
 			task._set_result(e.value)
-		except BaseException as e: # WARNING: this can quietly discard the errors caused by the runtime 
+		except BaseException as e:  # WARNING: this can quietly discard the errors caused by the runtime
 			task._set_error(e)
 			if err is not None and task._waker is not None:
 				task._waker.unschedule(task)
@@ -97,7 +97,7 @@ class Scheduler:
 
 		lenght = len(self.awake)
 		for _ in range(lenght):
-			task, *context = self.awake.popleft() # context might include error
+			task, *context = self.awake.popleft()  # context might include error
 			self._step_task(task, *context)
 
 	def wait(self):

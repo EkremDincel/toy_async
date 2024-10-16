@@ -38,7 +38,8 @@ class WakerJoin(AbstractWaker):
 		pass
 
 	def close(self):
-		pass
+		for task in self.joined.keys():
+			task.close()
 
 	def __repr__(self):
 		return repr(self.sleeping)

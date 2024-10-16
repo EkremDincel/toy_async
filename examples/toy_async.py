@@ -1,5 +1,5 @@
-# This isn't an example
-# This is just a proxy module
+# This isn't an example.
+# This is just a proxy module used by the example scripts.
 
 import sys, os
 

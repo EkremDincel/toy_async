@@ -1,3 +1,6 @@
+# This isn't an example, it just tests all of the examples.
+# It doesn't check their output, only whether they raise any exceptions.
+
 from importlib.machinery import SourceFileLoader
 import os
 import sys

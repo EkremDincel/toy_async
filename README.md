@@ -1,5 +1,5 @@
 # toy_async
 
-A custom async scheduler and utilities.
+A custom async runtime and utilities.
 
-See the examples directory for basic usage.
+See the [examples](/examples) directory for basic usage.

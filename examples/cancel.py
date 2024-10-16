@@ -17,5 +17,6 @@ async def multiple_tasks():
 	task.throw(ValueError)
 	print("Cancelled")
 
+
 s = Scheduler(debug=True)
 s.mainloop(multiple_tasks())

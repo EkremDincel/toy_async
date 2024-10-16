@@ -43,12 +43,12 @@ class Scheduler:
 		assert all(map(lambda x: isinstance(x, AbstractTask), tasks)), "didn't suplied a task"
 		self.awake.extend((task, None) for task in tasks)
 
-	def create_task(self, coroutine, task_type = Task):
+	def create_task(self, coroutine, task_type=Task):
 		task = task_type(coroutine)
 		self.spawn_task(task)
 		return task
 
-	def create_tasks(self, coroutines, task_type = Task):
+	def create_tasks(self, coroutines, task_type=Task):
 		tasks = tuple(map(task_type, coroutines))
 		self.spawn_tasks(tasks)
 		return tasks
@@ -65,7 +65,7 @@ class Scheduler:
 			task._set_result(e.value)
 		except GeneratorExit as e:
 			task._set_error(e)
-		except RuntimeError as e: # LAST: cancel.py is problematic
+		except RuntimeError as e:  # LAST: cancel.py is problematic
 			task._set_error(e)
 		except BaseException as e:
 			raise e
@@ -145,7 +145,7 @@ class Scheduler:
 		for task in self.awake:
 			task.close()
 
-	def mainloop(self, coroutine, wait_for_spawned = True): # TODO: implement wait_for_spawned
+	def mainloop(self, coroutine, wait_for_spawned=True):  # TODO: implement wait_for_spawned
 		task = self.create_task(coroutine)
 		task.set_name("{} (mainloop)".format(task.name()))
 		self.run_until_completion()

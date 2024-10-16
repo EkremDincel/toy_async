@@ -4,12 +4,14 @@ from .timer import now
 
 # see for atomics https://stackoverflow.com/a/27062830
 
-class CancelledError(GeneratorExit): # Question: GeneratorExit is raised in coroutine.close anyway. Is cancel method necessary?
+
+class CancelledError(GeneratorExit):  # Question: GeneratorExit is raised in coroutine.close anyway. Is cancel method necessary?
 	pass
 
 
 class TaskNotFinishedError(RuntimeError):
 	pass
+
 
 class AbstractTask:
 	@abstractmethod
@@ -128,11 +130,14 @@ class Task(AbstractTask):
 class ThreadTask(Task):
 	pass
 
+
 class CallbackTask(Task):
 	pass
 
+
 class ChildTask(Task):
 	pass
+
 
 class ShieldTask(Task):
 	pass

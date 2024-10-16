@@ -56,20 +56,23 @@ class Scheduler:
 
 	def _step_task(self, task, value, err=None):
 		self.step_count += 1
-		if err is not None:
-			task.throw(err)
 
 		try:
-			self.log("Sending to:", task.name())
-			result = task.send(value)
+			if err is not None:
+				self.log("Throwing into:", task.name())
+				task.throw(err)
+				return # ???
+			else:
+				self.log("Sending to:", task.name())
+				result = task.send(value)
 		except StopIteration as e:
 			task._set_result(e.value)
-		except GeneratorExit as e:
-			task._set_error(e)
-		except RuntimeError as e:  # LAST: cancel.py is problematic
-			task._set_error(e)
+		# except GeneratorExit as e:
+		# 	task._set_error(e)
+		# except RuntimeError as e:  # LAST: cancel.py is problematic
+		# 	task._set_error(e)
 		except BaseException as e:
-			raise e
+			task._set_error(e)
 		else:
 			if result.command == Command.PUT_TO_SLEEP:
 				self.put_to_sleep(task, result.waker, result.context)
@@ -87,8 +90,8 @@ class Scheduler:
 
 		lenght = len(self.awake)
 		for _ in range(lenght):
-			task, context = self.awake.popleft()
-			self._step_task(task, context)
+			task, *context = self.awake.popleft() # context might include error
+			self._step_task(task, *context)
 
 	def wait(self):
 		lenght = len(self.awake)

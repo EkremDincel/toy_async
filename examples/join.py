@@ -9,15 +9,18 @@ async def hi():
 async def goodbye():
 	await sleep(1)
 	print("Goodbye")
-	return 2
+	raise ValueError()
 
 
 async def main():
 	tasks = run_all([hi(), goodbye()])
-	for result in await join(tasks):
-		print(result)
+	for result, exception in await join(tasks):
+		if exception is None:
+			print("Return:", repr(result))
+		else:
+			print("Exception:", repr(exception))
 	print("End")
 
 
-s = Scheduler(debug=True)
+s = Scheduler(debug=False)
 s.mainloop(main())

@@ -18,7 +18,7 @@ class WakerJoin(AbstractWaker):
 
 		for task, joined_on in self.joined.items():
 			if all(t.finished() for t in joined_on):
-				self.awaken((task, (i.result() for i in joined_on)))
+				self.awaken((task, (i._result_error_tuple() for i in joined_on)))
 				tasks_to_awake.append(task)
 
 		for t in tasks_to_awake:

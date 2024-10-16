@@ -29,6 +29,10 @@ class AbstractTask(ABC):
 		raise NotImplementedError()
 
 	@abstractmethod
+	def _result_error_tuple(self):
+		raise NotImplementedError()
+
+	@abstractmethod
 	def send(self, arg):
 		raise NotImplementedError()
 
@@ -76,8 +80,8 @@ class Task(AbstractTask):
 		self._waker = None  # todo: try using this for JoinWaker or task.wait
 		self._coroutine = coroutine
 		self._finished = False
-		self._result = None
-		self._exception = None
+		self._result = None # I don't know how good of an idea this is
+		self._exception = None # note: None cannot be used with raise, so this means no exception
 		self._name = coroutine.__name__
 
 	def send(self, arg):
@@ -90,6 +94,9 @@ class Task(AbstractTask):
 	def _set_error(self, error):
 		self._finished = True
 		self._exception = error
+
+	def _result_error_tuple(self):
+		return (self._result, self._exception)
 
 	def finished(self):
 		return self._finished

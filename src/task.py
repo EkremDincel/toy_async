@@ -77,6 +77,8 @@ class AbstractTask(ABC):
 
 
 class Task(AbstractTask):
+	_cancelled = False
+
 	def __init__(self, coroutine):
 		self._waker = None  # todo: try using this for JoinWaker or task.wait
 		self._coroutine = coroutine
@@ -106,24 +108,33 @@ class Task(AbstractTask):
 		start = now()
 		while not self._finished and timeout > start.interval():
 			await switch
-		return self._result
+		return self.result_or_raise()
 
 	def _throw(self, error):
 			return self._coroutine.throw(error)
 
 	def cancel(self, *args, **kwargs): # NOTE: the task might step once more before the cancelation
 		if self._waker is not None:
-			# print("unschedule", self)
 			self._waker.unschedule(self)
+		if self._cancelled:
+			return
+		self._cancelled = True
 		get_running_scheduler()._awaken((self, None, TaskCancelledError(*args, **kwargs)))
+
+	def cancelled():
+		return self._cancelled
 
 	def error(self):
 		if self._finished:
+			if self._exception is None:
+				raise ValueError("The task has not terminated with an exception. It terminated with a return value.")
 			return self._exception
 		raise TaskNotFinishedError(self)
 
 	def result(self):
 		if self._finished:
+			if self._exception is not None:
+				raise ValueError("The task has not terminated with a return value. It terminated with an exception.")
 			return self._result
 		raise TaskNotFinishedError(self)
 
@@ -134,7 +145,7 @@ class Task(AbstractTask):
 			return self._result
 		raise TaskNotFinishedError(self)
 
-	def close(self):
+	def close(self): # Question: should this be public?
 		return self._coroutine.close()
 
 	def name(self):

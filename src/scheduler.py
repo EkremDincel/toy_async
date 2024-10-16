@@ -30,9 +30,10 @@ class Scheduler:
 	def _awaken(self, arg):
 		task = arg[0]
 		task._waker = None
-		if not task.finished(): # !!! NOTE: wakers might try awakening canceled tasks
-			# print("Awakening", task.finished()) # last: why is this false
-			self.awake.append(arg)
+		# if not task.finished(): # !!! NOTE: wakers might try awakening canceled tasks
+		# 	# print("Awakening", task.finished()) # ??? Question: why is this false
+		# 	self.awake.append(arg)
+		self.awake.append(arg)
 
 	def put_to_sleep(self, task, waker_type, context):  # Todo: make private?
 		try:
@@ -42,7 +43,7 @@ class Scheduler:
 			waker = self.wakers[waker_type] = waker_type(self._awaken)
 
 		task._waker = waker
-		self.log(f"set waker of {task} to {type(waker)}")
+		# self.log(f"set waker of {task} to {type(waker)}")
 		waker.schedule(task, context)
 
 	def spawn_task(self, task):
@@ -69,7 +70,7 @@ class Scheduler:
 		try:
 			if err is not None:
 				self.log("Throwing into:", task.name())
-				result = task.throw(err)
+				result = task._throw(err)
 			else:
 				self.log("Sending to:", task.name())
 				result = task._resume(value)
@@ -78,7 +79,6 @@ class Scheduler:
 		except BaseException as e:
 			task._set_error(e)
 			if err is not None and task._waker is not None:
-				# print("unschedule", task)
 				task._waker.unschedule(task)
 		else:
 			if result.command == Command.PUT_TO_SLEEP:

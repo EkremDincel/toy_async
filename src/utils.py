@@ -1,6 +1,7 @@
 from .local import get_running_scheduler
 from .wakers.sleep import sleep
 from .wakers.join import join
+from .commands import switch
 
 
 def run(coroutine):
@@ -21,9 +22,24 @@ async def gather(coroutines):
 def as_completed(coroutines):  # return an async iter
 	pass
 
+# TODO: create a waker for this
+async def select(coroutines, n=1):  # select the first completed
+	tasks = set(run_all(coroutines))
+	selected = []
+	while len(selected) < n:
+		await switch
+		to_remove = []
+		for task in tasks:
+			if task.finished():
+				selected.append(task)
+				to_remove.append(task)
+		for task in to_remove:
+			tasks.remove(task)
 
-def select(coroutines, n=1):  # select the first completed
-	pass
+	for task in tasks:
+		task.cancel()
+
+	return selected
 
 
 def call_soon(function):
@@ -41,4 +57,5 @@ def call_later(function, delay):
 	return run(inner())
 
 
-# def async unconstra
+# def async unconstrained():
+# 	pass

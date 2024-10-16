@@ -14,6 +14,8 @@ class Scheduler:
 
 		set_default_scheduler(self)
 
+		self.closed = False
+
 		# debug
 		self.debug = debug
 		self.step_count = 0
@@ -153,9 +155,12 @@ class Scheduler:
 		assert len(self.wakers) == 0, "Couldn't close all wakers"
 		assert len(self.awake) == 0, "Couldn't close all tasks"
 
+		self.closed = True
+
 	def __del__(self):
-		pass
-		# TODO: check if closed
+		if not self.closed:
+			raise RuntimeError("The Scheduler is not closed.")
+			self.close()
 
 	def mainloop(self, coroutine, wait_for_spawned=True):  # TODO: implement wait_for_spawned
 		task = self.create_task(coroutine)

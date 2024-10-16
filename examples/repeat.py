@@ -29,6 +29,9 @@ class Repeater:
 	def run(self):
 		self.scheduler.run_until_completion()
 
+	def __del__(self):
+		self.scheduler.close()
+
 
 r = Repeater()
 r.repeat(1, partial(print, "Hello", end="", flush=True), count=5)
